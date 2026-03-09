@@ -1,0 +1,15 @@
+# VSCode
+.vscode/
+
+# Node (si utilisé)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# SSH
+*.pem

@@ -1,7 +1,7 @@
 /**
  *------
  * BGA framework: Gregory Isabelli & Emmanuel Colin & BoardGameArena
- * PreBadBones implementation : © <Your name here> <Your email address here>
+ * PreBadBones implementation : © <Vanwesel Etienne> <e.vanwesel@gmail.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -128,11 +128,47 @@ export class Game {
 
             // example of adding a div for each player
             document.getElementById('player-tables').insertAdjacentHTML('beforeend', `
-                <div id="player-table-${player.id}">
-                    <strong>${player.name}</strong>
-                    <div>Player zone content goes here</div>
-                </div>
+                <fieldset id="player-table-${player.id}" class="player-table" style="border-color:#${player.color};">
+                    <legend><strong class="name-player" style="color:#${player.color};">${player.name}</strong></legend>
+                    <div class="left">    
+                        <div id="zone-${player.id}">
+                            <div id="cimetery-${player.id}" class="cimetery">Cimetiere</div> 
+                            <div id="gameboard-${player.id}" class="gameboard"><div id="grid-${player.id}" class="grid"></div></div> 
+                            <div id="village-${player.id}" class="village"><div id="grid-village-${player.id}" class="grid-village"></div></div> 
+                        </div> 
+                    </div>
+                    <div class="right">
+                        <div id="supply-${player.id}" class="supply"><div id="grid-supply-${player.id}" class="grid-supply"></div></div> 
+                    </div>
+                </fieldset>
             `);
+
+            const board = document.getElementById("grid-"+player.id);
+            for (let x=1; x<=5; x++) {
+                for (let y=1; y<=5; y++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.id = `cell_${player.id}_${x}_${y}`;
+                    board.appendChild(cell);
+                }
+            }
+
+            const village = document.getElementById("grid-village-"+player.id);
+            for (let x=1; x<=5; x++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.id = `cell_village_${player.id}_${x}`;
+                village.appendChild(cell);
+            }
+
+            const supply = document.getElementById("grid-supply-"+player.id);
+            for (let x=1; x<=6; x++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.id = `cell_supply_${player.id}_${x}`;
+                supply.appendChild(cell);
+            }
+
         });
         
         // TODO: Set up your game interface here, according to "gamedatas"
