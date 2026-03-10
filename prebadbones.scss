@@ -1,0 +1,252 @@
+/**
+ *------
+ * BGA framework: Gregory Isabelli & Emmanuel Colin & BoardGameArena
+ * PreBadBones implementation : © <Vanwesel Etienne> <e.vanwesel@gmail.com>
+ *
+ * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
+ * See http://en.boardgamearena.com/#!doc/Studio for more information.
+ * -----
+ *
+ * prebadbones.css
+ *
+ * PreBadBones stylesheet
+ *
+ */
+
+/*
+    This is the CSS stylesheet of your game User Interface.
+    
+    Styles defined on this file will be applied to the HTML elements you define in your
+    HTML template (prebadbones_prebadbones.tpl), and to HTML elements you create dynamically
+    (in prebadbones.js).
+    
+    Usually, you are using CSS to:
+    
+    1°) define the overall layout of your game
+        (ex: place the board on the top left, place player's hand beside, place the deck on the right, ...).
+
+    2°) create your CSS-sprites:
+        All images of your games should be gathered into a small number of image files. Then, using
+        background-image and background-position CSS properties, you create HTML blocks that can 
+        display these images correctly (see example below).
+    
+    3°) ... anything else:
+        It is really easy to add and remove CSS classes dynamically from your Javascript with
+        dojo.addClass and dojo.removeClass. It is also easy to check if an element has a class
+        (dojo.hasClass) or to get all elements with a specific class (dojo.query). This is why,
+        very often, using CSS classes for the logic of your user interface allow you to do complex
+        thing easily.
+        
+        
+     Note: on the production platform, this file will be compressed and comments will be removed.
+           Consequently, don't hesitate to put as many comments as necessary.
+*/
+
+
+/* Note: you must not use any @import directive */
+
+
+/********* You can start writing your CSS below this line: **********/
+
+.player-table{
+    border: 8px dashed;
+    /*box-shadow: 0px 0px 8px 8px;*/
+    margin: 20px ;
+    text-align: center;
+    padding: 20px;
+    display: table;
+    /*background-color: aliceblue;*/
+    /*display: flex;
+    align-items: stretch;*/
+    
+    .name-player{
+        padding: 15px;
+        font-size: 24px;
+        text-shadow: 2px 2px 7px #666;
+    }
+}
+
+.left{
+    display: table-cell;
+    width: 921px;
+    background-color: rgba(255,255,255,0.5);
+
+    .cimetery{
+        background: url(img/cimetery.jpg);
+        height: 201px;
+        display: grid;
+        width: 400px;
+        margin: auto;
+        place-items: center;
+    }
+
+    .gameboard{
+        background: url(img/board.jpg) no-repeat;
+        height: 836px;
+        width: 921px;
+        //position: relative;
+        // text-align: center;
+        //display: flex;
+        //justify-content: center;
+        //align-items: center;
+        //padding-top: 45px;
+
+        .grid-entrance-top{
+            background-color: rgba(0,255,0,0.5);
+            height: 102px;
+            width: 921px;            
+        }
+
+        .board{
+            display: flex;
+            position: relative;
+            width: 921px;
+            height: 734px;
+
+            .grid-entrance-left{
+                background-color: rgba(0,0,255,0.5);
+                display: grid;
+                //grid-template-rows: repeat(5, 142px); 
+                //gap: 2px;  
+                width: 102px;
+                height: 734px;
+    
+            }
+            .grid-entrance-right{
+                background-color: rgba(0,200,102,0.5);
+                display: grid;
+                //grid-template-rows: repeat(5, 142px); 
+                //gap: 2px;  
+                width: 102px;
+                height: 734px;
+                
+            }
+
+            .grid-board{
+                width: 718px;
+                display: grid;
+                grid-template-columns: repeat(5, 142px);
+                grid-template-rows: repeat(5, 142px); 
+                gap: 2px;        
+                
+                .cell{
+                    border: #666 1px solid;
+                    background-color:rgba(255,0,0,0.3);
+                    width: 142px;
+                    height: 142px;
+                    display: grid;
+                    place-items: center;
+                }
+            }
+        }
+    }
+    
+    .village{
+    width: 921px;
+    position: relative;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+        .grid-village{
+            display: grid;
+            grid-template-columns: repeat(5, 142px);
+            gap: 2px;
+
+            .house{
+                background-image: url(img/house.png);
+                width: 72px; 
+                height: 72px;
+            }
+            .house_ecurie{
+                background-position: -75px 0;
+            }
+            .house_farm{
+                background-position: -150px 0;
+            }
+            .house_lumberjack{
+                background-position: -225px 0;
+            }
+            .house_puit{
+                background-position: -300px 0;
+            }
+        }
+    }
+}
+
+.right{
+    display: table-cell;
+    vertical-align: middle;
+    background-color: rgba(255,255,255,0.5);
+
+    .supply{
+        width: 150px;
+        height: 100%;
+        position: relative;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        margin: auto 0; 
+
+        .grid-supply{
+            display: grid;
+            grid-template-rows: repeat(6, 142px);
+            gap: 2px;
+        }
+    }
+}  
+.cell{
+    border: #666 1px solid;
+    background-color:rgba(255,0,0,0.5);
+    width: 142px;
+    height: 142px;
+    display: grid;
+    place-items: center;
+}
+
+.skeleton{
+    background-image: url(img/skeleton_40.png);
+    width: 33px; 
+    height: 40px;
+}
+.skeleton_red{
+    background-position: -95px 0;
+}
+.skeleton_blue{
+    background-position: -128px 0;
+}
+.skeleton_green{
+    background-position: -194px 0;
+}
+.skeleton_yellow{
+    background-position: -31px 0;
+}
+.skeleton_pink{
+    background-position: 3px 0;
+}
+
+.catapult{
+    background-image: url(img/catapult.jpg);
+    width: 99px;
+    height: 100px;
+}
+.wall{
+    background-image: url(img/wall.jpg);
+    width: 99px;
+    height: 100px;
+}
+.dragon{
+    background-image: url(img/dragon.jpg);
+    width: 99px;
+    height: 100px;
+}
+.treasure{
+    background-image: url(img/treasure.jpg);
+    width: 99px;
+    height: 100px;
+}
+
+.bag{
+    display: none;
+}

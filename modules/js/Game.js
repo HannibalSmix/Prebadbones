@@ -111,6 +111,8 @@ export class Game {
         // Example to add a div on the game area
         this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
             <div id="player-tables"></div>
+            <div id="aid-board"></div>
+            <div id="bag"></div>
         `);
         
         // Setting up player boards
@@ -132,8 +134,15 @@ export class Game {
                     <legend><strong class="name-player" style="color:#${player.color};">${player.name}</strong></legend>
                     <div class="left">    
                         <div id="zone-${player.id}">
-                            <div id="cimetery-${player.id}" class="cimetery">Cimetiere</div> 
-                            <div id="gameboard-${player.id}" class="gameboard"><div id="grid-${player.id}" class="grid"></div></div> 
+                            <div id="cimetery-${player.id}" class="cimetery"></div> 
+                            <div id="gameboard-${player.id}" class="gameboard">
+                                <div id="grid-entrance-top-${player.id}" class="grid-entrance-top"></div>
+                                <div id="board-${player.id}" class="board">
+                                    <div id="grid-entrance-left-${player.id}" class="grid-entrance-left"></div>
+                                    <div id="grid-board-${player.id}" class="grid-board"></div>
+                                    <div id="grid-entrance-right-${player.id}" class="grid-entrance-right"></div>
+                                </div>
+                            </div> 
                             <div id="village-${player.id}" class="village"><div id="grid-village-${player.id}" class="grid-village"></div></div> 
                         </div> 
                     </div>
@@ -143,7 +152,7 @@ export class Game {
                 </fieldset>
             `);
 
-            const board = document.getElementById("grid-"+player.id);
+            const board = document.getElementById("grid-board-"+player.id);
             for (let x=1; x<=5; x++) {
                 for (let y=1; y<=5; y++) {
                     const cell = document.createElement("div");
@@ -159,6 +168,10 @@ export class Game {
                 cell.classList.add("cell");
                 cell.id = `cell_village_${player.id}_${x}`;
                 village.appendChild(cell);
+                const house = document.createElement("div");
+                house.classList.add("house");
+                house.id = `house_${player.id}_${x}`;
+                cell.appendChild(house);
             }
 
             const supply = document.getElementById("grid-supply-"+player.id);
@@ -167,12 +180,52 @@ export class Game {
                 cell.classList.add("cell");
                 cell.id = `cell_supply_${player.id}_${x}`;
                 supply.appendChild(cell);
+
+                if(x<3){
+                    const trap = document.createElement("div");
+                    trap.classList.add("wall");
+                    trap.id = `wall_${player.id}_${x}`;
+                    cell.appendChild(trap);
+                }
+                if(x>2 && x<5){
+                    const trap = document.createElement("div");
+                    trap.classList.add("catapult");
+                    trap.id = `catapult_${player.id}_${x}`;
+                    cell.appendChild(trap);
+
+                }
+                if(x==5){
+                    const trap = document.createElement("div");
+                    trap.classList.add("dragon");
+                    trap.id = `dragon_${player.id}_${x}`;
+                    cell.appendChild(trap);
+
+                }
+                if(x==6){
+                    const trap = document.createElement("div");
+                    trap.classList.add("treasure");
+                    trap.id = `treasure_${player.id}_${x}`;
+                    cell.appendChild(trap);
+
+                }
             }
+
+            const cimetery = document.getElementById("cimetery-"+player.id);
+            
+            const color_skeleton = ["blue","pink","green","yellow"];
+            for (let x=1; x<=3; x++) {
+                const skeleton_r = document.createElement("div");
+                skeleton_r.classList.add("skeleton");
+                const random_color = color_skeleton[Math.floor(Math.random()*color_skeleton.length)]
+                skeleton_r.classList.add("skeleton_"+random_color);
+                skeleton_r.id = `skeleton_`+random_color+`_${player.id}_2`;
+                cimetery.appendChild(skeleton_r);
+            }
+            
 
         });
         
         // TODO: Set up your game interface here, according to "gamedatas"
-        
 
         // Setup game notifications to handle (see "setupNotifications" method below)
         this.setupNotifications();
