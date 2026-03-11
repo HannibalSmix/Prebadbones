@@ -110,10 +110,27 @@ export class Game {
 
         // Example to add a div on the game area
         this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
-            <div id="player-tables"></div>
             <div id="aid-board"></div>
             <div id="bag"></div>
+            <div id="player-tables"></div>
         `);
+
+        //fill the bag
+        const color_skeleton = ["blue","pink","green","yellow","red"];
+        const entrance_skeleton = ["top","left","right"];
+        const bag = document.getElementById("bag");        
+        for (let x=0; x<color_skeleton.length; x++) {
+            for(let y=0; y<entrance_skeleton.length; y++){
+                for (let z=1; z<=12; z++){
+                    const cell = document.createElement("div");
+                    cell.classList.add("skeleton");
+                    cell.classList.add("skeleton_"+entrance_skeleton[y]);
+                    cell.classList.add("skeleton_"+color_skeleton[x]+"_"+entrance_skeleton[y]);
+                    cell.id = "skeleton_"+color_skeleton[x]+"_"+entrance_skeleton[y]+"_"+z ;
+                    bag.appendChild(cell);
+                }
+            }
+        }
         
         // Setting up player boards
         Object.values(gamedatas.players).forEach(player => {
@@ -136,11 +153,31 @@ export class Game {
                         <div id="zone-${player.id}">
                             <div id="cimetery-${player.id}" class="cimetery"></div> 
                             <div id="gameboard-${player.id}" class="gameboard">
-                                <div id="grid-entrance-top-${player.id}" class="grid-entrance-top"></div>
+                                <div id="grid-entrance-top-${player.id}" class="grid-entrance-top">
+                                    <div></div>
+                                    <div id="entrance-top-pink-${player.id}" class="entrance-top"></div>
+                                    <div id="entrance-top-yellow-${player.id}" class="entrance-top"></div>
+                                    <div id="entrance-top-red-${player.id}" class="entrance-top"></div>
+                                    <div id="entrance-top-blue-${player.id}" class="entrance-top"></div>
+                                    <div id="entrance-top-green-${player.id}" class="entrance-top"></div>
+                                    <div></div>
+                                </div>
                                 <div id="board-${player.id}" class="board">
-                                    <div id="grid-entrance-left-${player.id}" class="grid-entrance-left"></div>
+                                    <div id="grid-entrance-left-${player.id}" class="grid-entrance-left">
+                                        <div id="entrance-left-green-${player.id}" class="entrance-left"></div>
+                                        <div id="entrance-left-blue-${player.id}" class="entrance-left"></div>
+                                        <div id="entrance-left-red-${player.id}" class="entrance-left"></div>
+                                        <div id="entrance-left-yellow-${player.id}" class="entrance-left"></div>
+                                        <div id="entrance-left-pink-${player.id}" class="entrance-left"></div>
+                                    </div>
                                     <div id="grid-board-${player.id}" class="grid-board"></div>
-                                    <div id="grid-entrance-right-${player.id}" class="grid-entrance-right"></div>
+                                    <div id="grid-entrance-right-${player.id}" class="grid-entrance-right">
+                                        <div id="entrance-right-pink-${player.id}" class="entrance-right"></div>
+                                        <div id="entrance-right-yellow-${player.id}" class="entrance-right"></div>
+                                        <div id="entrance-right-red-${player.id}" class="entrance-right"></div>
+                                        <div id="entrance-right-blue-${player.id}" class="entrance-right"></div>
+                                        <div id="entrance-right-green-${player.id}" class="entrance-right"></div>
+                                    </div>
                                 </div>
                             </div> 
                             <div id="village-${player.id}" class="village"><div id="grid-village-${player.id}" class="grid-village"></div></div> 
@@ -159,6 +196,13 @@ export class Game {
                     cell.classList.add("cell");
                     cell.id = `cell_${player.id}_${x}_${y}`;
                     board.appendChild(cell);
+                    // adding hero
+                    if(x==3 && y==3){
+                        const hero = document.createElement("div");
+                        hero.classList.add("hero");
+                        hero.id = `hero_${player.id}`;
+                        cell.appendChild(hero);
+                    }
                 }
             }
 
@@ -211,14 +255,15 @@ export class Game {
             }
 
             const cimetery = document.getElementById("cimetery-"+player.id);
-            
-            const color_skeleton = ["blue","pink","green","yellow"];
             for (let x=1; x<=3; x++) {
                 const skeleton_r = document.createElement("div");
                 skeleton_r.classList.add("skeleton");
+                //todo pick in the bag rather than randoms // attention ne pas prendre les rouges
                 const random_color = color_skeleton[Math.floor(Math.random()*color_skeleton.length)]
-                skeleton_r.classList.add("skeleton_"+random_color);
-                skeleton_r.id = `skeleton_`+random_color+`_${player.id}_2`;
+                const random_entrance = entrance_skeleton[Math.floor(Math.random()*entrance_skeleton.length)]
+                skeleton_r.classList.add("skeleton_"+random_color+"_"+random_entrance);
+                skeleton_r.classList.add("skeleton_"+random_entrance);
+                skeleton_r.id = `skeleton_`+random_color+`_`+random_entrance+`_2`;
                 cimetery.appendChild(skeleton_r);
             }
             

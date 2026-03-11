@@ -39,19 +39,11 @@ class Game extends \Bga\GameFramework\Table
     public function __construct()
     {
         parent::__construct();
+        require 'material.inc.php'; 
+
         $this->initGameStateLabels([]); // mandatory, even if the array is empty
 
         $this->playerEnergy = $this->bga->counterFactory->createPlayerCounter('energy');
-
-        self::$CARD_TYPES = [
-            1 => [
-                "card_name" => clienttranslate('Troll'), // ...
-            ],
-            2 => [
-                "card_name" => clienttranslate('Goblin'), // ...
-            ],
-            // ...
-        ];
 
         /* example of notification decorator.
         // automatically complete notification args when needed
@@ -137,6 +129,7 @@ class Game extends \Bga\GameFramework\Table
 
         // TODO: Gather all information about current game situation (visible by player $currentPlayerId).
 
+
         return $result;
     }
 
@@ -148,11 +141,33 @@ class Game extends \Bga\GameFramework\Table
     {
         $this->playerEnergy->initDb(array_keys($players), initialValue: 2);
 
+        //Création des skelettes dans le bag
+        $insert=[];
+        foreach($this->token_skeleton as $key => $value){
+            for($i=1;$i<=12;$i++){
+                $k=$key."_".$i;
+                $insert[] = vsprintf("('%s', '%s', '%s', '%s')", [
+                    $k,
+                    'bag',
+                    0,
+                    0
+                ]);
+            }
+        }
+        
+        static::DbQuery(
+            sprintf(
+                "INSERT INTO `skeleton` (`token_key`, `token_location`, `token_state`, `token_direction`) VALUES %s",
+                implode(",", $insert)
+            )
+        );
+
         // Set the colors of the players with HTML color code. The default below is red/green/blue/orange/brown. The
         // number of colors defined here must correspond to the maximum number of players allowed for the gams.
         $gameinfos = $this->getGameinfos();
         $default_colors = $gameinfos['player_colors'];
 
+        $query_values_hero=[];
         foreach ($players as $player_id => $player) {
             // Now you can access both $player_id and $player array
             $query_values[] = vsprintf("(%s, '%s', '%s')", [
@@ -160,6 +175,17 @@ class Game extends \Bga\GameFramework\Table
                 array_shift($default_colors),
                 addslashes($player["player_name"]),
             ]);
+
+            //créer chaque héro
+            $query_values_hero[] = vsprintf("('%s', '%s')", [
+                'hero_'.$player_id,
+                'cell_'.$player_id.'_3_3',
+            ]);
+
+            //piocher 3 squelettes ->passe de location bag à cimetière
+            $this->drawThreeSkeleton($player_id);
+
+            
         }
 
         // Create players based on generic information.
@@ -170,6 +196,13 @@ class Game extends \Bga\GameFramework\Table
             sprintf(
                 "INSERT INTO `player` (`player_id`, `player_color`, `player_name`) VALUES %s",
                 implode(",", $query_values)
+            )
+        );
+
+        static::DbQuery(
+            sprintf(
+                "INSERT INTO `hero` (`token_key`, `token_location`) VALUES %s",
+                implode(",", $query_values_hero)
             )
         );
 
@@ -188,10 +221,29 @@ class Game extends \Bga\GameFramework\Table
 
         // TODO: Setup the initial game situation here.
 
+
+
         // Activate first player once everything has been initialized and ready.
         $this->activeNextPlayer();
 
         return PlayerTurn::class;
+    }
+
+    //Draw 3 skeletons in the bag
+    function drawThreeSkeleton($player_id)//: array
+    {
+        $sql = "SELECT token_key FROM skeleton WHERE token_location = 'bag' ORDER BY RAND() LIMIT 3";
+        $skeletons = self::getCollectionFromDb($sql);
+        $new_loc='cimetery_'.$player_id;
+
+        $token_keys = array_map(fn($s) => "'" . $s['token_key'] . "'", $skeletons);
+        $keys_str = implode(",", $token_keys);
+            
+        static::DbQuery(
+            "UPDATE `skeleton` SET `token_location`='$new_loc' WHERE `token_key` IN ($keys_str)"
+        );
+    
+        //return $result;
     }
 
     /**

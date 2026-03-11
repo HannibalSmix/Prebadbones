@@ -79,9 +79,11 @@
   width: 921px;
 }
 .left .gameboard .grid-entrance-top {
-  background-color: rgba(0, 255, 0, 0.5);
   height: 102px;
   width: 921px;
+  display: grid;
+  grid-template-columns: 100px 142px 142px 142px 142px 142px 102px;
+  gap: 2px;
 }
 .left .gameboard .board {
   display: flex;
@@ -90,14 +92,16 @@
   height: 734px;
 }
 .left .gameboard .board .grid-entrance-left {
-  background-color: rgba(0, 0, 255, 0.5);
   display: grid;
+  grid-template-rows: repeat(5, 142px);
+  gap: 2px;
   width: 102px;
   height: 734px;
 }
 .left .gameboard .board .grid-entrance-right {
-  background-color: rgba(0, 200, 102, 0.5);
   display: grid;
+  grid-template-rows: repeat(5, 142px);
+  gap: 2px;
   width: 102px;
   height: 734px;
 }
@@ -109,8 +113,6 @@
   gap: 2px;
 }
 .left .gameboard .board .grid-board .cell {
-  border: #666 1px solid;
-  background-color: rgba(255, 0, 0, 0.3);
   width: 142px;
   height: 142px;
   display: grid;
@@ -134,7 +136,7 @@
   width: 72px;
   height: 72px;
 }
-.left .village .grid-village .house_ecurie {
+.left .village .grid-village .house_stable {
   background-position: -75px 0;
 }
 .left .village .grid-village .house_farm {
@@ -143,7 +145,7 @@
 .left .village .grid-village .house_lumberjack {
   background-position: -225px 0;
 }
-.left .village .grid-village .house_puit {
+.left .village .grid-village .house_well {
   background-position: -300px 0;
 }
 
@@ -168,8 +170,6 @@
 }
 
 .cell {
-  border: #666 1px solid;
-  background-color: rgba(255, 0, 0, 0.5);
   width: 142px;
   height: 142px;
   display: grid;
@@ -177,28 +177,79 @@
 }
 
 .skeleton {
-  background-image: url(img/skeleton_40.png);
   width: 33px;
   height: 40px;
 }
 
-.skeleton_red {
+.skeleton_top {
+  background-image: url(img/skeleton_40.png);
+}
+
+.skeleton_right {
+  background-image: url(img/skeleton_40.png);
+}
+
+.skeleton_left {
+  background-image: url(img/skeleton_40.png);
+}
+
+.skeleton_red_top {
   background-position: -95px 0;
 }
 
-.skeleton_blue {
+.skeleton_blue_top {
   background-position: -128px 0;
 }
 
-.skeleton_green {
+.skeleton_green_top {
   background-position: -194px 0;
 }
 
-.skeleton_yellow {
+.skeleton_yellow_top {
   background-position: -31px 0;
 }
 
-.skeleton_pink {
+.skeleton_pink_top {
+  background-position: 3px 0;
+}
+
+.skeleton_red_right {
+  background-position: -95px 0;
+}
+
+.skeleton_blue_right {
+  background-position: -128px 0;
+}
+
+.skeleton_green_right {
+  background-position: -194px 0;
+}
+
+.skeleton_yellow_right {
+  background-position: -31px 0;
+}
+
+.skeleton_pink_right {
+  background-position: 3px 0;
+}
+
+.skeleton_red_left {
+  background-position: -95px 0;
+}
+
+.skeleton_blue_left {
+  background-position: -128px 0;
+}
+
+.skeleton_green_left {
+  background-position: -194px 0;
+}
+
+.skeleton_yellow_left {
+  background-position: -31px 0;
+}
+
+.skeleton_pink_left {
   background-position: 3px 0;
 }
 
@@ -226,6 +277,12 @@
   height: 100px;
 }
 
-.bag {
+#bag {
   display: none;
+}
+
+.hero {
+  background-image: url(img/hero.png);
+  width: 100px;
+  height: 100px;
 }/*# sourceMappingURL=prebadbones.css.map */
