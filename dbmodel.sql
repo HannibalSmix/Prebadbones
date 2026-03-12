@@ -55,16 +55,14 @@ CREATE TABLE IF NOT EXISTS `trap` (
  PRIMARY KEY (`token_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `house` (
+CREATE TABLE IF NOT EXISTS `village` (
  `token_key` varchar(32) NOT NULL,
- `token_location` varchar(32) NOT NULL,
  `token_state` int(10),
  PRIMARY KEY (`token_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `tower` (
  `token_key` varchar(32) NOT NULL,
- `token_location` varchar(32) NOT NULL,
  `token_state` int(10),
  PRIMARY KEY (`token_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

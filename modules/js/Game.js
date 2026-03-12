@@ -20,7 +20,7 @@
  * onEnteringState, onLeavingState and onPlayerActivationChange are predefined names that will be called by the framework.
  * When executing code in this state, you can access the args using this.args
  */
-class PlayerTurn {
+class MoveHero {
     constructor(game, bga) {
         this.game = game;
         this.bga = bga;
@@ -29,21 +29,15 @@ class PlayerTurn {
     /**
      * This method is called each time we are entering the game state. You can use this method to perform some user interface changes at this moment.
      */
-    onEnteringState(args, isCurrentPlayerActive) {
-        this.bga.statusBar.setTitle(isCurrentPlayerActive ? 
-            _('${you} must play a card or pass') :
-            _('${actplayer} must play a card or pass')
-        );
-      
+    onEnteringState(args, isCurrentPlayerActive)  {
         if (isCurrentPlayerActive) {
-            const playableCardsIds = args.playableCardsIds; // returned by the PlayerTurn::getArgs
-
-            // Add test action buttons in the action status bar, simulating a card click:
-            playableCardsIds.forEach(
-                cardId => this.bga.statusBar.addActionButton(_('Play card with id ${card_id}').replace('${card_id}', cardId), () => this.onCardClick(cardId))
-            ); 
-
-            this.bga.statusBar.addActionButton(_('Pass'), () => this.bga.actions.performAction("actPass"), { color: 'secondary' }); 
+            args._private.validCells.forEach(cellId => {
+                const cell = document.getElementById(cellId);
+                if (cell) {
+                    cell.classList.add('valid-cell');
+                    cell.addEventListener('click', () => this.onCellClick(cellId));
+                }
+            });
         }
     }
 
@@ -51,6 +45,10 @@ class PlayerTurn {
      * This method is called each time we are leaving the game state. You can use this method to perform some user interface changes at this moment.
      */
     onLeavingState(args, isCurrentPlayerActive) {
+        document.querySelectorAll('.valid-cell').forEach(cell => {
+            cell.classList.remove('valid-cell');
+            cell.replaceWith(cell.cloneNode(true)); //permet de supprimer le listeners
+        });
     }
 
     /**
@@ -59,18 +57,11 @@ class PlayerTurn {
      * If your state is not a MULTIPLE_ACTIVE_PLAYER one, you can delete this function.
      */
     onPlayerActivationChange(args, isCurrentPlayerActive) {
+        this.onEnteringState(args, isCurrentPlayerActive);
     }
 
-    
-    onCardClick(card_id) {
-        console.log( 'onCardClick', card_id );
-
-        this.bga.actions.performAction("actPlayCard", { 
-            card_id,
-        }).then(() =>  {                
-            // What to do after the server call if it succeeded
-            // (most of the time, nothing, as the game will react to notifs / change of state instead, so you can delete the `then`)
-        });        
+    onCellClick(cellId) {
+        this.bga.actions.performAction('actMoveHero', { cell: cellId });
     }
 }
 
@@ -80,8 +71,8 @@ export class Game {
         this.bga = bga;
 
         // Declare the State classes
-        this.playerTurn = new PlayerTurn(this, bga);
-        this.bga.states.register('PlayerTurn', this.playerTurn);
+        this.MoveHero = new MoveHero(this, bga);
+        this.bga.states.register('MoveHero', this.MoveHero);
 
         // Uncomment the next line to show debug informations about state changes in the console. Remove before going to production!
         // this.bga.states.logger = console.log;
@@ -115,7 +106,7 @@ export class Game {
             <div id="player-tables"></div>
         `);
 
-        //fill the bag
+       //fill the bag
         const color_skeleton = ["blue","pink","green","yellow","red"];
         const entrance_skeleton = ["top","left","right"];
         const bag = document.getElementById("bag");        
@@ -151,7 +142,7 @@ export class Game {
                     <legend><strong class="name-player" style="color:#${player.color};">${player.name}</strong></legend>
                     <div class="left">    
                         <div id="zone-${player.id}">
-                            <div id="cimetery-${player.id}" class="cimetery"></div> 
+                            <div id="cimetery_${player.id}" class="cimetery"></div> 
                             <div id="gameboard-${player.id}" class="gameboard">
                                 <div id="grid-entrance-top-${player.id}" class="grid-entrance-top">
                                     <div></div>
@@ -253,24 +244,17 @@ export class Game {
 
                 }
             }
-
-            const cimetery = document.getElementById("cimetery-"+player.id);
-            for (let x=1; x<=3; x++) {
-                const skeleton_r = document.createElement("div");
-                skeleton_r.classList.add("skeleton");
-                //todo pick in the bag rather than randoms // attention ne pas prendre les rouges
-                const random_color = color_skeleton[Math.floor(Math.random()*color_skeleton.length)]
-                const random_entrance = entrance_skeleton[Math.floor(Math.random()*entrance_skeleton.length)]
-                skeleton_r.classList.add("skeleton_"+random_color+"_"+random_entrance);
-                skeleton_r.classList.add("skeleton_"+random_entrance);
-                skeleton_r.id = `skeleton_`+random_color+`_`+random_entrance+`_2`;
-                cimetery.appendChild(skeleton_r);
-            }
-            
-
         });
         
         // TODO: Set up your game interface here, according to "gamedatas"
+        // Placer les squelettes depuis gamedatas
+        Object.values(gamedatas.skeletons).forEach(skeleton => {
+            const skeletonEl = document.getElementById(skeleton.token_key);
+            const targetEl = document.getElementById(skeleton.token_location);
+            if (skeletonEl && targetEl) {
+                targetEl.appendChild(skeletonEl);
+            }
+        });
 
         // Setup game notifications to handle (see "setupNotifications" method below)
         this.setupNotifications();
@@ -312,6 +296,13 @@ export class Game {
     }
     
     // TODO: from this point and below, you can write your game notifications handling methods
+    async notif_heroMoved(args) {
+        const hero = document.getElementById(`hero_${args.player_id}`);
+        const targetCell = document.getElementById(args.cell);
+        if (hero && targetCell) {
+            targetCell.appendChild(hero);
+        }
+    }
     
     /*
     Example:

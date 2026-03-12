@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 namespace Bga\Games\PreBadBones;
 
-use Bga\Games\PreBadBones\States\PlayerTurn;
+use Bga\Games\PreBadBones\States\MoveHero;
 use Bga\GameFramework\Components\Counters\PlayerCounter;
 
 class Game extends \Bga\GameFramework\Table
@@ -128,7 +128,30 @@ class Game extends \Bga\GameFramework\Table
         $this->playerEnergy->fillResult($result);
 
         // TODO: Gather all information about current game situation (visible by player $currentPlayerId).
+        // Squelettes (seulement ceux sur le board, pas dans le bag)
+        $result["skeletons"] = $this->getCollectionFromDb(
+            "SELECT * FROM `skeleton` WHERE `token_location` != 'bag'"
+        );
 
+        // Héros
+        $result["heroes"] = $this->getCollectionFromDb(
+            "SELECT * FROM `hero`"
+        );
+
+        // Pièges
+        $result["traps"] = $this->getCollectionFromDb(
+            "SELECT * FROM `trap`"
+        );
+
+        // Tours
+        $result["towers"] = $this->getCollectionFromDb(
+            "SELECT * FROM `tower`"
+        );
+
+        // Villages
+        $result["villages"] = $this->getCollectionFromDb(
+            "SELECT * FROM `village`"
+        );
 
         return $result;
     }
@@ -168,6 +191,8 @@ class Game extends \Bga\GameFramework\Table
         $default_colors = $gameinfos['player_colors'];
 
         $query_values_hero=[];
+        $query_values=[];
+        $traps=[];
         foreach ($players as $player_id => $player) {
             // Now you can access both $player_id and $player array
             $query_values[] = vsprintf("(%s, '%s', '%s')", [
@@ -176,16 +201,33 @@ class Game extends \Bga\GameFramework\Table
                 addslashes($player["player_name"]),
             ]);
 
-            //créer chaque héro
+            //create heros
             $query_values_hero[] = vsprintf("('%s', '%s')", [
                 'hero_'.$player_id,
                 'cell_'.$player_id.'_3_3',
             ]);
 
-            //piocher 3 squelettes ->passe de location bag à cimetière
-            $this->drawThreeSkeleton($player_id);
+            //draw 3 skeletons -> bag to cimetery
+            $this->drawThreeSkeletonNoRed($player_id);
 
-            
+            //create towers
+            static::DbQuery(
+                "INSERT INTO `tower` (`token_key`, `token_state`) VALUES ($player_id, 4)"
+            );
+            //create village
+            static::DbQuery(
+                "INSERT INTO `village` (`token_key`, `token_state`) VALUES ($player_id, 5)"
+            );
+
+            //traps
+            $traps[] = "('catapult_{$player_id}_1','supply',0,0)";
+            $traps[] = "('catapult_{$player_id}_2','supply',0,0)";
+            $traps[] = "('wall_{$player_id}_1','supply',0,0)";
+            $traps[] = "('wall_{$player_id}_2','supply',0,0)";
+            $traps[] = "('dragon_{$player_id}','supply',0,0)";
+            $traps[] = "('treasure_{$player_id}','supply',0,0)";
+
+          
         }
 
         // Create players based on generic information.
@@ -199,12 +241,17 @@ class Game extends \Bga\GameFramework\Table
             )
         );
 
+        //create heros
         static::DbQuery(
             sprintf(
                 "INSERT INTO `hero` (`token_key`, `token_location`) VALUES %s",
                 implode(",", $query_values_hero)
             )
         );
+        
+        //create traps
+        $this->DbQuery("INSERT INTO `trap` (`token_key`, `token_location`, `token_state`, `token_orientation`) VALUES " . implode(',', $traps));
+        
 
         $this->reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
         $this->reloadPlayersBasicInfos();
@@ -213,7 +260,21 @@ class Game extends \Bga\GameFramework\Table
 
         // Init game statistics.
         //
-        // NOTE: statistics used in this file must be defined in your `stats.inc.php` file.
+        // NOTE: statistics used in this file must be defined in your `stats.json` file.
+        // Init game statistics
+        $this->tableStats->init(['turns_number'], 0);
+
+        $this->playerStats->init([
+            'turns_number',
+            'skeletons_killed_by_hero',
+            'skeletons_sent_to_opponents',
+            'tower_floors_lost',
+            'houses_lost',
+            'traps_destroyed',
+            'final_score'
+        ], 0);
+        
+
 
         // Dummy content.
         // $this->tableStats->init('table_teststat1', 0);
@@ -221,18 +282,32 @@ class Game extends \Bga\GameFramework\Table
 
         // TODO: Setup the initial game situation here.
 
-
-
         // Activate first player once everything has been initialized and ready.
         $this->activeNextPlayer();
 
-        return PlayerTurn::class;
+        return MoveHero::class;
     }
 
     //Draw 3 skeletons in the bag
     function drawThreeSkeleton($player_id)//: array
     {
         $sql = "SELECT token_key FROM skeleton WHERE token_location = 'bag' ORDER BY RAND() LIMIT 3";
+        $skeletons = self::getCollectionFromDb($sql);
+        $new_loc='cimetery_'.$player_id;
+
+        $token_keys = array_map(fn($s) => "'" . $s['token_key'] . "'", $skeletons);
+        $keys_str = implode(",", $token_keys);
+            
+        static::DbQuery(
+            "UPDATE `skeleton` SET `token_location`='$new_loc' WHERE `token_key` IN ($keys_str)"
+        );
+    
+        //return $result;
+    }
+    //Draw 3 skeletons except RED skeleton in the bag!!
+    function drawThreeSkeletonNoRed($player_id)//: array
+    {
+        $sql = "SELECT token_key FROM skeleton WHERE token_location = 'bag' AND token_key NOT LIKE '%red%'  ORDER BY RAND() LIMIT 3";
         $skeletons = self::getCollectionFromDb($sql);
         $new_loc='cimetery_'.$player_id;
 

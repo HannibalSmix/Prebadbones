@@ -1,0 +1,7 @@
+State 1 (réservé BGA - setup)
+State 2 : moveHero         → MULTIPLE_ACTIVE_PLAYER
+State 3 : placeTrap        → MULTIPLE_ACTIVE_PLAYER
+State 4 : moveSkeletons    → GAME (automatique)
+State 5 : newSkeletons     → GAME (automatique)
+State 6 : checkEndGame     → GAME (vérifie si fin de partie)
+State 99 (réservé BGA - end)

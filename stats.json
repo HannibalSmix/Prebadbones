@@ -1,1 +1,46 @@
-{}
+{
+  "table": {
+    "turns_number": {
+      "id": 10,
+      "name": "Number of rounds",
+      "type": "int"
+    }
+  },
+  "player": {
+    "turns_number": {
+      "id": 10,
+      "name": "Number of rounds played",
+      "type": "int"
+    },
+    "skeletons_killed_by_hero": {
+      "id": 11,
+      "name": "Skeletons slain by hero",
+      "type": "int"
+    },
+    "skeletons_sent_to_opponents": {
+      "id": 12,
+      "name": "Skeletons sent to opponents",
+      "type": "int"
+    },
+    "tower_floors_lost": {
+      "id": 13,
+      "name": "Tower floors destroyed",
+      "type": "int"
+    },
+    "houses_lost": {
+      "id": 14,
+      "name": "Village houses destroyed",
+      "type": "int"
+    },
+    "traps_destroyed": {
+      "id": 15,
+      "name": "Traps destroyed",
+      "type": "int"
+    },
+    "final_score": {
+      "id": 16,
+      "name": "Final score",
+      "type": "int"
+    }
+  }
+}

@@ -285,4 +285,14 @@
   background-image: url(img/hero.png);
   width: 100px;
   height: 100px;
+}
+
+.valid-cell {
+  background-color: rgba(100, 200, 100, 0.4);
+  cursor: pointer;
+  border: 2px solid #64c864;
+}
+
+.valid-cell:hover {
+  background-color: rgba(100, 200, 100, 0.7);
 }/*# sourceMappingURL=prebadbones.css.map */
