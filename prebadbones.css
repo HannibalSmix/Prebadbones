@@ -84,6 +84,11 @@
   display: grid;
   grid-template-columns: 100px 142px 142px 142px 142px 142px 102px;
   gap: 2px;
+  align-items: end;
+}
+.left .gameboard .grid-entrance-top .entrance-top {
+  display: grid;
+  justify-items: center;
 }
 .left .gameboard .board {
   display: flex;
@@ -97,6 +102,12 @@
   gap: 2px;
   width: 102px;
   height: 734px;
+  align-items: center;
+}
+.left .gameboard .board .grid-entrance-left .entrance-left {
+  display: grid;
+  justify-items: end;
+  align-items: center;
 }
 .left .gameboard .board .grid-entrance-right {
   display: grid;
@@ -104,6 +115,12 @@
   gap: 2px;
   width: 102px;
   height: 734px;
+  align-items: center;
+}
+.left .gameboard .board .grid-entrance-right .entrance-right {
+  display: grid;
+  justify-items: start;
+  align-items: center;
 }
 .left .gameboard .board .grid-board {
   width: 718px;

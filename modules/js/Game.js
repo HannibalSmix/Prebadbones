@@ -146,28 +146,28 @@ export class Game {
                             <div id="gameboard-${player.id}" class="gameboard">
                                 <div id="grid-entrance-top-${player.id}" class="grid-entrance-top">
                                     <div></div>
-                                    <div id="entrance-top-pink-${player.id}" class="entrance-top"></div>
-                                    <div id="entrance-top-yellow-${player.id}" class="entrance-top"></div>
-                                    <div id="entrance-top-red-${player.id}" class="entrance-top"></div>
-                                    <div id="entrance-top-blue-${player.id}" class="entrance-top"></div>
-                                    <div id="entrance-top-green-${player.id}" class="entrance-top"></div>
+                                    <div id="entrance_skeleton_pink_top_${player.id}" class="entrance-top"></div>
+                                    <div id="entrance_skeleton_yellow_top_${player.id}" class="entrance-top"></div>
+                                    <div id="entrance_skeleton_red_top_${player.id}" class="entrance-top"></div>
+                                    <div id="entrance_skeleton_blue_top_${player.id}" class="entrance-top"></div>
+                                    <div id="entrance_skeleton_green_top_${player.id}" class="entrance-top"></div>
                                     <div></div>
                                 </div>
                                 <div id="board-${player.id}" class="board">
                                     <div id="grid-entrance-left-${player.id}" class="grid-entrance-left">
-                                        <div id="entrance-left-green-${player.id}" class="entrance-left"></div>
-                                        <div id="entrance-left-blue-${player.id}" class="entrance-left"></div>
-                                        <div id="entrance-left-red-${player.id}" class="entrance-left"></div>
-                                        <div id="entrance-left-yellow-${player.id}" class="entrance-left"></div>
-                                        <div id="entrance-left-pink-${player.id}" class="entrance-left"></div>
+                                        <div id="entrance_skeleton_green_left_${player.id}" class="entrance-left"></div>
+                                        <div id="entrance_skeleton_blue_left_${player.id}" class="entrance-left"></div>
+                                        <div id="entrance_skeleton_red_left_${player.id}" class="entrance-left"></div>
+                                        <div id="entrance_skeleton_yellow_left_${player.id}" class="entrance-left"></div>
+                                        <div id="entrance_skeleton_pink_left_${player.id}" class="entrance-left"></div>
                                     </div>
                                     <div id="grid-board-${player.id}" class="grid-board"></div>
-                                    <div id="grid-entrance-right-${player.id}" class="grid-entrance-right">
-                                        <div id="entrance-right-pink-${player.id}" class="entrance-right"></div>
-                                        <div id="entrance-right-yellow-${player.id}" class="entrance-right"></div>
-                                        <div id="entrance-right-red-${player.id}" class="entrance-right"></div>
-                                        <div id="entrance-right-blue-${player.id}" class="entrance-right"></div>
-                                        <div id="entrance-right-green-${player.id}" class="entrance-right"></div>
+                                    <div id="grid_entrance_skeleton_right_${player.id}" class="grid-entrance-right">
+                                        <div id="entrance_skeleton_pink_right_${player.id}" class="entrance-right"></div>
+                                        <div id="entrance_skeleton_yellow_right_${player.id}" class="entrance-right"></div>
+                                        <div id="entrance_skeleton_red_right_${player.id}" class="entrance-right"></div>
+                                        <div id="entrance_skeleton_blue_right_${player.id}" class="entrance-right"></div>
+                                        <div id="entrance_skeleton_green_right_${player.id}" class="entrance-right"></div>
                                     </div>
                                 </div>
                             </div> 
@@ -188,14 +188,20 @@ export class Game {
                     cell.id = `cell_${player.id}_${x}_${y}`;
                     board.appendChild(cell);
                     // adding hero
-                    if(x==3 && y==3){
+                    /*if(x==3 && y==3){
                         const hero = document.createElement("div");
                         hero.classList.add("hero");
                         hero.id = `hero_${player.id}`;
                         cell.appendChild(hero);
-                    }
+                    }*/
                 }
             }
+                
+            // Créer le héros sans l'attacher à une cellule
+            const hero = document.createElement("div");
+            hero.classList.add("hero");
+            hero.id = `hero_${player.id}`;
+            document.getElementById('bag').appendChild(hero); // on le met dans le bag temporairement
 
             const village = document.getElementById("grid-village-"+player.id);
             for (let x=1; x<=5; x++) {
@@ -253,6 +259,15 @@ export class Game {
             const targetEl = document.getElementById(skeleton.token_location);
             if (skeletonEl && targetEl) {
                 targetEl.appendChild(skeletonEl);
+            }
+        });
+
+        
+        Object.values(gamedatas.heroes).forEach(hero => {
+            const heroEl = document.getElementById(hero.token_key);
+            const targetEl = document.getElementById(hero.token_location);
+            if (heroEl && targetEl) {
+                targetEl.appendChild(heroEl);
             }
         });
 

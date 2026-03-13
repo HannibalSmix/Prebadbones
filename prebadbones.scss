@@ -98,8 +98,12 @@
             display: grid;
             grid-template-columns: 100px 142px 142px 142px 142px 142px 102px;   
             gap: 2px; 
+            align-items: end;
             
             .entrance-top{
+                
+                display: grid;
+                justify-items: center; // ← centré horizontalement
                 //background-color: rgba(255,0,255,0.5);
                 //width: 72px;
             }
@@ -118,9 +122,12 @@
                 gap: 2px;  
                 width: 102px;
                 height: 734px;
+                align-items: center; // ← centré verticalement
 
                 .entrance-left{
-                    //background-color: rgba(255,0,255,0.5);
+                    display: grid;
+                    justify-items: end; // ← collé à droite
+                    align-items: center;
                 }
     
             }
@@ -131,9 +138,12 @@
                 gap: 2px;  
                 width: 102px;
                 height: 734px;
+                align-items: center;
 
                 .entrance-right{
-                    //background-color: rgba(255,0,255,0.5);
+                    display: grid;
+                    justify-items: start; // ← collé à gauche
+                    align-items: center;
                 }
                 
             }

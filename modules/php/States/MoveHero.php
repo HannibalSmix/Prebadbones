@@ -70,22 +70,31 @@ class MoveHero extends GameState
      * @throws UserException
      */
     #[PossibleAction]
-    public function actMoveHero(string $cell, int $activePlayerId): string {
+    public function actMoveHero(string $cell, int $currentPlayerId ): void {
 
         // Extraire x et y depuis "cell_{player_id}_{x}_{y}"
         $parts = explode('_', $cell);
         $x = (int)$parts[2];
         $y = (int)$parts[3];
+
+        $this->game->dump('cell recu', $cell);
+        $this->game->dump('parts', $parts);
+        $this->game->dump('x', $x);
+        $this->game->dump('y', $y);
         
         // Récupérer la position actuelle du héros
         $hero = $this->game->getObjectFromDb(
-            "SELECT `token_location` FROM `hero` WHERE `token_key` = 'hero_{$activePlayerId}'"
+            "SELECT `token_location` FROM `hero` WHERE `token_key` = 'hero_{$currentPlayerId}'"
         );
         
         // Extraire x et y actuels depuis "cell_{player_id}_{x}_{y}"
         $parts = explode('_', $hero['token_location']);
         $currentX = (int)$parts[2];
         $currentY = (int)$parts[3];
+
+        $this->game->dump('hero location', $hero['token_location']);
+        $this->game->dump('currentX', $currentX);
+        $this->game->dump('currentY', $currentY);
 
         // Vérifier que le mouvement est valide (adjacent orthogonal ou diagonal)
         $dx = abs($x - $currentX);
@@ -99,7 +108,7 @@ class MoveHero extends GameState
             throw new UserException(clienttranslate('Cannot leave the board'));
         }
 
-        $newLocation = "cell_{$activePlayerId}_{$x}_{$y}";
+        $newLocation = "cell_{$currentPlayerId}_{$x}_{$y}";
 
         // Détruire les squelettes sur la case d'arrivée
         $this->game->DbQuery(
@@ -110,20 +119,19 @@ class MoveHero extends GameState
         // Déplacer le héros
         $this->game->DbQuery(
             "UPDATE `hero` SET `token_location` = '{$newLocation}' 
-             WHERE `token_key` = 'hero_{$activePlayerId}'"
+             WHERE `token_key` = 'hero_{$currentPlayerId}'"
         );
 
         // Notifier les joueurs
         $this->game->bga->notify->all('heroMoved', clienttranslate('${player_name} moves their hero'), [
-            'player_id'   => $activePlayerId,
-            'player_name' => $this->game->getPlayerNameById($activePlayerId),
-            'x'           => $x,
-            'y'           => $y,
+            'player_id'   => $currentPlayerId,
+            'player_name' => $this->game->getPlayerNameById($currentPlayerId),
+            'cell'           => $newLocation
         ]);
 
         // Signaler que ce joueur a terminé sa phase
-        //$this->game->gamestate->setPlayerNonMultiactive($activePlayerId, 'allHerosMoved');
-        return 'allHerosMoved';
+        $this->game->gamestate->setPlayerNonMultiactive($currentPlayerId, 'allHerosMoved');
+       //return 'allHerosMoved';
     }
 
     private function getValidMoves(int $player_id): array {

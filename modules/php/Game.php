@@ -207,7 +207,8 @@ class Game extends \Bga\GameFramework\Table
                 'cell_'.$player_id.'_3_3',
             ]);
 
-            //draw 3 skeletons -> bag to cimetery
+            //draw 3 skeletons -> bag to cimetery ->to change and put on the board
+            //$this->dump('BEFORE DRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAW', $player_id);
             $this->drawThreeSkeletonNoRed($player_id);
 
             //create towers
@@ -307,16 +308,25 @@ class Game extends \Bga\GameFramework\Table
     //Draw 3 skeletons except RED skeleton in the bag!!
     function drawThreeSkeletonNoRed($player_id)//: array
     {
+        //$this->dump('DRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAW', $player_id);
         $sql = "SELECT token_key FROM skeleton WHERE token_location = 'bag' AND token_key NOT LIKE '%red%'  ORDER BY RAND() LIMIT 3";
-        $skeletons = self::getCollectionFromDb($sql);
-        $new_loc='cimetery_'.$player_id;
+        $skeletons = self::getObjectListFromDB($sql,true); 
 
-        $token_keys = array_map(fn($s) => "'" . $s['token_key'] . "'", $skeletons);
-        $keys_str = implode(",", $token_keys);
-            
-        static::DbQuery(
-            "UPDATE `skeleton` SET `token_location`='$new_loc' WHERE `token_key` IN ($keys_str)"
-        );
+        //$this->dump('skeletonsskeletonsskeletonsskeletonsskeletons', $skeletons);
+        foreach($skeletons as $value){
+            //$this->dump('token_keytoken_keytoken_keytoken_key', $token_key);
+            $parts = explode('_', $value);
+            $base = $parts[0] . '_' . $parts[1] . '_' . $parts[2]; // skeleton_blue_left
+            $new_loc='entrance_'.$base.'_'.$player_id;
+
+            static::DbQuery(
+                "UPDATE `skeleton` SET `token_location`='$new_loc' WHERE `token_key` = '$value'"
+            );
+        }
+
+       // $token_keys = array_map(fn($s) => "'" . $s['token_key'] . "'", $skeletons);
+        //$keys_str = implode(",", $token_keys);
+          
     
         //return $result;
     }
