@@ -123,7 +123,7 @@ class Game extends \Bga\GameFramework\Table
         // Get information about players.
         // NOTE: you can retrieve some extra field you added for "player" table in `dbmodel.sql` if you need it.
         $result["players"] = $this->getCollectionFromDb(
-            "SELECT `player_id` AS `id`, `player_score` AS `score` FROM `player`"
+            "SELECT `player_id` AS `id`, `player_score` AS `score`, `player_no` AS `no` FROM `player`"
         );
         $this->playerEnergy->fillResult($result);
 
@@ -221,12 +221,12 @@ class Game extends \Bga\GameFramework\Table
             );
 
             //traps
-            $traps[] = "('catapult_{$player_id}_1','supply',0,0)";
-            $traps[] = "('catapult_{$player_id}_2','supply',0,0)";
-            $traps[] = "('wall_{$player_id}_1','supply',0,0)";
-            $traps[] = "('wall_{$player_id}_2','supply',0,0)";
-            $traps[] = "('dragon_{$player_id}','supply',0,0)";
-            $traps[] = "('treasure_{$player_id}','supply',0,0)";
+            $traps[] = "('catapult_{$player_id}_1','supply_{$player_id}',0,0)";
+            $traps[] = "('catapult_{$player_id}_2','supply_{$player_id}',0,0)";
+            $traps[] = "('wall_{$player_id}_1','supply_{$player_id}',0,0)";
+            $traps[] = "('wall_{$player_id}_2','supply_{$player_id}',0,0)";
+            $traps[] = "('dragon_{$player_id}','supply_{$player_id}',0,0)";
+            $traps[] = "('treasure_{$player_id}','supply_{$player_id}',0,0)";
 
           
         }

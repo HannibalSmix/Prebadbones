@@ -312,4 +312,24 @@
 
 .valid-cell:hover {
   background-color: rgba(100, 200, 100, 0.7);
+}
+
+.selectable {
+  background-color: rgba(100, 200, 100, 0.4);
+  cursor: pointer;
+  border: 2px solid #64c864;
+}
+
+.selectable:hover {
+  background-color: rgba(100, 200, 100, 0.7);
+}
+
+.retrievable {
+  background-color: rgba(100, 200, 100, 0.4);
+  cursor: pointer;
+  border: 2px solid #64c864;
+}
+
+.retrievable:hover {
+  background-color: rgba(100, 200, 100, 0.7);
 }/*# sourceMappingURL=prebadbones.css.map */

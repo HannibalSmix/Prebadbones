@@ -20,6 +20,102 @@
  * onEnteringState, onLeavingState and onPlayerActivationChange are predefined names that will be called by the framework.
  * When executing code in this state, you can access the args using this.args
  */
+class PlaceTrap {
+    constructor(game, bga) {
+        this.game = game;
+        this.bga = bga;
+        this.selectedTrap = null; // piège sélectionné dans le supply
+    }
+
+    onEnteringState(args, isCurrentPlayerActive) {
+        console.log('PlaceTrap onEnteringState', args, isCurrentPlayerActive);
+        if (isCurrentPlayerActive) {
+            // Rendre les pièges du supply cliquables
+            Object.values(args._private.supplyTraps).forEach(trap => {
+                const el = document.getElementById(trap.token_key);
+                if (el) {
+                    el.classList.add('selectable');
+                    el.addEventListener('click', () => this.onSupplyTrapClick(trap, args));
+                }
+            });
+
+            // Rendre les pièges du board cliquables (pour récupérer)
+            Object.values(args._private.boardTraps).forEach(trap => {
+                const el = document.getElementById(trap.token_location); // la cellule
+                if (el) {
+                    el.classList.add('retrievable');
+                    el.addEventListener('click', () => this.onBoardTrapClick(trap.token_location));
+                }
+            });
+        }
+    }
+
+    onSupplyTrapClick(trap, args) {
+        // Désélectionner si déjà sélectionné
+        if (this.selectedTrap?.token_key === trap.token_key) {
+            this.selectedTrap = null;
+            this.clearValidCells();
+            return;
+        }
+
+        this.selectedTrap = trap;
+        this.clearValidCells();
+
+        // Mettre en évidence les cases vides du board
+        const occupiedCells = Object.values(args._private.boardTraps).map(t => t.token_location);
+        const playerId = trap.token_key.split('_').slice(-1)[0]; // extraire player_id depuis token_key
+        
+        for (let x = 1; x <= 5; x++) {
+            for (let y = 1; y <= 5; y++) {
+                const cellId = `cell_${playerId}_${x}_${y}`;
+                if (cellId === `cell_${playerId}_3_3`) continue; // pas sur la tour
+                if (occupiedCells.includes(cellId)) continue; // case occupée
+                
+                const cell = document.getElementById(cellId);
+                if (cell) {
+                    cell.classList.add('valid-cell');
+                    cell.addEventListener('click', () => this.onCellClick(cellId), { once: true });
+                }
+            }
+        }
+    }
+
+    onCellClick(cellId) {
+        if (!this.selectedTrap) return;
+        this.bga.actions.performAction('actPlaceTrap', {
+            trapKey: this.selectedTrap.token_key,
+            cell: cellId,
+            orientation: 0, // TODO: gérer l'orientation plus tard
+        });
+        this.selectedTrap = null;
+        this.clearValidCells();
+    }
+
+    onBoardTrapClick(cell) {
+        this.bga.actions.performAction('actRetrieveTrap', { cell: cell });
+    }
+
+    clearValidCells() {
+        document.querySelectorAll('.valid-cell').forEach(cell => {
+            cell.classList.remove('valid-cell');
+            cell.replaceWith(cell.cloneNode(true));
+        });
+    }
+
+    onLeavingState() {
+        this.selectedTrap = null;
+        this.clearValidCells();
+        document.querySelectorAll('.selectable, .retrievable').forEach(el => {
+            el.classList.remove('selectable', 'retrievable');
+            el.replaceWith(el.cloneNode(true));
+        });
+    }
+
+    onPlayerActivationChange(args, isCurrentPlayerActive) {
+        // vide intentionnellement
+    }
+}
+
 class MoveHero {
     constructor(game, bga) {
         this.game = game;
@@ -57,7 +153,7 @@ class MoveHero {
      * If your state is not a MULTIPLE_ACTIVE_PLAYER one, you can delete this function.
      */
     onPlayerActivationChange(args, isCurrentPlayerActive) {
-        this.onEnteringState(args, isCurrentPlayerActive);
+        //this.onEnteringState(args, isCurrentPlayerActive);
     }
 
     onCellClick(cellId) {
@@ -73,6 +169,8 @@ export class Game {
         // Declare the State classes
         this.MoveHero = new MoveHero(this, bga);
         this.bga.states.register('MoveHero', this.MoveHero);
+        this.PlaceTrap = new PlaceTrap(this, bga);
+        this.bga.states.register('PlaceTrap', this.PlaceTrap);
 
         // Uncomment the next line to show debug informations about state changes in the console. Remove before going to production!
         // this.bga.states.logger = console.log;
@@ -122,9 +220,16 @@ export class Game {
                 }
             }
         }
+
+        const currentPlayerId = String(this.bga.gameui.player_id);
+        const sortedPlayers = Object.values(gamedatas.players).sort((a, b) => {
+            if (String(a.id) === String(currentPlayerId)) return -1;
+            if (String(b.id) === String(currentPlayerId)) return 1;
+            return a.no - b.no; // ordre naturel pour les autres
+        });
         
         // Setting up player boards
-        Object.values(gamedatas.players).forEach(player => {
+        Object.values(sortedPlayers).forEach(player => {
             // example of setting up players boards
             this.bga.playerPanels.getElement(player.id).insertAdjacentHTML('beforeend', `
                 <span id="energy-player-counter-${player.id}"></span> Energy
@@ -175,7 +280,7 @@ export class Game {
                         </div> 
                     </div>
                     <div class="right">
-                        <div id="supply-${player.id}" class="supply"><div id="grid-supply-${player.id}" class="grid-supply"></div></div> 
+                        <div id="supply_${player.id}" class="supply"><div id="grid-supply_${player.id}" class="grid-supply"></div></div> 
                     </div>
                 </fieldset>
             `);
@@ -214,7 +319,7 @@ export class Game {
                 house.id = `house_${player.id}_${x}`;
                 cell.appendChild(house);
             }
-
+            /*
             const supply = document.getElementById("grid-supply-"+player.id);
             for (let x=1; x<=6; x++) {
                 const cell = document.createElement("div");
@@ -249,7 +354,7 @@ export class Game {
                     cell.appendChild(trap);
 
                 }
-            }
+            }*/
         });
         
         // TODO: Set up your game interface here, according to "gamedatas"
@@ -268,6 +373,26 @@ export class Game {
             const targetEl = document.getElementById(hero.token_location);
             if (heroEl && targetEl) {
                 targetEl.appendChild(heroEl);
+            }
+        });
+
+        // Dans le fill the bag
+        const trap_types = ['wall', 'catapult', 'dragon', 'treasure'];
+        Object.values(gamedatas.traps).forEach(trap => {
+            const el = document.createElement("div");
+            const type = trap.token_key.split('_')[0]; // wall, catapult, dragon, treasure
+            el.classList.add(type);
+            el.id = trap.token_key;
+            bag.appendChild(el);
+        });
+
+        Object.values(gamedatas.traps).forEach(trap => {
+            const trapEl = document.getElementById(trap.token_key);
+            const locationId = trap.token_location.replace('supply_', 'grid-supply_');
+            const targetEl = document.getElementById(locationId);
+            console.log('trap', trap.token_key, 'location', trap.token_location, 'locationId', locationId, 'targetEl', targetEl);
+            if (trapEl && targetEl) {
+                targetEl.appendChild(trapEl);
             }
         });
 

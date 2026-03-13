@@ -34,22 +34,6 @@ class MoveHero extends GameState
      */
     public function getArgs(int $activePlayerId): array 
     {
-       /* return [
-            'validCells' => $this->getValidMoves($activePlayerId),
-        ];*/
-        /*
-        $moves = $this->getValidMoves($activePlayerId);
-        $this->game->dump('moves', $moves);
-        $this->game->dump('activePlayerId', $activePlayerId);
-        // Return valid square
-        return [
-            '_private' => [
-                $activePlayerId => [
-                    'validCells' => $this->getValidMoves($activePlayerId),
-                ]
-            ]
-        ];*/
-                // Retourne les cases valides pour chaque joueur actif
         $result = [];
         $activePlayers = $this->game->gamestate->getActivePlayerList();
         foreach ($activePlayers as $player_id) {
