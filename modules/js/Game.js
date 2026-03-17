@@ -28,7 +28,9 @@ class PlaceTrap {
     }
 
     onEnteringState(args, isCurrentPlayerActive) {
-        console.log('PlaceTrap onEnteringState', args, isCurrentPlayerActive);
+        //console.log('PlaceTrap onEnteringState', args, isCurrentPlayerActive);
+        console.log('PlaceTrap args', args);
+        console.log('isCurrentPlayerActive', isCurrentPlayerActive);
         if (isCurrentPlayerActive) {
             // Rendre les pièges du supply cliquables
             Object.values(args._private.supplyTraps).forEach(trap => {
@@ -50,7 +52,34 @@ class PlaceTrap {
         }
     }
 
+   /* onUpdateActionButtons(args, isCurrentPlayerActive)  {
+        console.log('PlaceTrap onUpdateActionButtons', args, isCurrentPlayerActive);
+        if (isCurrentPlayerActive) {
+            const playerId = this.bga.players.getCurrentPlayerId();
+            const privateArgs = args._private[playerId];
+            if (!privateArgs){console.log('privateArgs manquant pour', playerId, args); return;}
+            // Rendre les pièges du supply cliquables
+            Object.values(args._private.supplyTraps).forEach(trap => {
+                const el = document.getElementById(trap.token_key);
+                if (el) {
+                    el.classList.add('selectable');
+                    el.addEventListener('click', () => this.onSupplyTrapClick(trap, args));
+                }
+            });
+
+            // Rendre les pièges du board cliquables (pour récupérer)
+            Object.values(args._private.boardTraps).forEach(trap => {
+                const el = document.getElementById(trap.token_location); // la cellule
+                if (el) {
+                    el.classList.add('retrievable');
+                    el.addEventListener('click', () => this.onBoardTrapClick(trap.token_location));
+                }
+            });
+        }
+    }*/
+
     onSupplyTrapClick(trap, args) {
+        console.log("TRAP", trap)
         // Désélectionner si déjà sélectionné
         if (this.selectedTrap?.token_key === trap.token_key) {
             this.selectedTrap = null;
@@ -62,8 +91,11 @@ class PlaceTrap {
         this.clearValidCells();
 
         // Mettre en évidence les cases vides du board
+        //console.log("args._private.boardTraps", args._private.boardTraps)
         const occupiedCells = Object.values(args._private.boardTraps).map(t => t.token_location);
-        const playerId = trap.token_key.split('_').slice(-1)[0]; // extraire player_id depuis token_key
+        const playerId = trap.token_location.split('_').slice(-1)[0]; // extraire player_id depuis token_location
+        console.log("occupiedCells", occupiedCells);
+        console.log("playerId", playerId);
         
         for (let x = 1; x <= 5; x++) {
             for (let y = 1; y <= 5; y++) {
@@ -74,18 +106,20 @@ class PlaceTrap {
                 const cell = document.getElementById(cellId);
                 if (cell) {
                     cell.classList.add('valid-cell');
-                    cell.addEventListener('click', () => this.onCellClick(cellId), { once: true });
+                    console.log("cellId", cellId);
+                    cell.addEventListener('click', () => this.onCellClick(cellId, playerId));
                 }
             }
         }
     }
 
-    onCellClick(cellId) {
+    onCellClick(cellId, playerId) {
         if (!this.selectedTrap) return;
         this.bga.actions.performAction('actPlaceTrap', {
             trapKey: this.selectedTrap.token_key,
             cell: cellId,
             orientation: 0, // TODO: gérer l'orientation plus tard
+            playerId : playerId
         });
         this.selectedTrap = null;
         this.clearValidCells();
@@ -112,7 +146,8 @@ class PlaceTrap {
     }
 
     onPlayerActivationChange(args, isCurrentPlayerActive) {
-        // vide intentionnellement
+        console.log('onPlayerActivationChange:::: args', args);
+      //  this.onEnteringState(args, isCurrentPlayerActive);
     }
 }
 
@@ -390,7 +425,7 @@ export class Game {
             const trapEl = document.getElementById(trap.token_key);
             const locationId = trap.token_location.replace('supply_', 'grid-supply_');
             const targetEl = document.getElementById(locationId);
-            console.log('trap', trap.token_key, 'location', trap.token_location, 'locationId', locationId, 'targetEl', targetEl);
+            //console.log('trap', trap.token_key, 'location', trap.token_location, 'locationId', locationId, 'targetEl', targetEl);
             if (trapEl && targetEl) {
                 targetEl.appendChild(trapEl);
             }
@@ -411,7 +446,12 @@ export class Game {
         script. Typically, functions that are used in multiple state classes or outside a state class.
     
     */
-
+    /*onUpdateActionButtons(stateName, args)  {
+        const stateClass = this.bga.states.getCurrentPlayerStateClass();
+        if (stateClass?.onUpdateActionButtons) {
+            stateClass.onUpdateActionButtons(args, this.bga.players.isCurrentPlayerActive());
+        }
+    }*/
     
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
@@ -441,6 +481,14 @@ export class Game {
         const targetCell = document.getElementById(args.cell);
         if (hero && targetCell) {
             targetCell.appendChild(hero);
+        }
+    }
+    
+    async notif_trapPlaced(args) {
+        const trap = document.getElementById(`${args.trapKey}`);
+        const targetCell = document.getElementById(args.cell);
+        if (trap && targetCell) {
+            targetCell.appendChild(trap);
         }
     }
     

@@ -153,12 +153,12 @@ class MoveHero extends GameState
      * you must _never_ use `getCurrentPlayerId()` or `getCurrentPlayerName()`, 
      * but use the $playerId passed in parameter and $this->game->getPlayerNameById($playerId) instead.
      */
-    public function zombie(int $playerId): string {
+    public function zombie(int $playerId): void {
         $moves = $this->getValidMoves($playerId);
         if (!empty($moves)) {
             $cell = $moves[array_rand($moves)];
             $this->actMoveHero($cell, $playerId);
         }
-        return 'allHerosMoved';
+        $this->game->gamestate->setPlayerNonMultiactive($playerId, 'allHerosMoved');
     }
 }

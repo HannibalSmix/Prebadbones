@@ -32,6 +32,7 @@ class MoveSkeletons extends GameState
         }
 
         //return 'allSkeletonsMoved';
+        $this->game->gamestate->nextState('allSkeletonsMoved');
     }
 
     private function moveSkeleton(array $skeleton, int $player_id): void {

@@ -19,6 +19,11 @@ declare(strict_types=1);
 namespace Bga\Games\PreBadBones;
 
 use Bga\Games\PreBadBones\States\MoveHero;
+use Bga\Games\PreBadBones\States\PlaceTrap;
+use Bga\Games\PreBadBones\States\MoveSkeletons;
+use Bga\Games\PreBadBones\States\NewSkeletons;
+use Bga\Games\PreBadBones\States\checkEndGame;
+use Bga\Games\PreBadBones\States\EndScore;
 use Bga\GameFramework\Components\Counters\PlayerCounter;
 
 class Game extends \Bga\GameFramework\Table

@@ -27,6 +27,8 @@ class PlaceTrap extends GameState
     //return trap from players (on the board and supply)
     public function getArgs(int $activePlayerId): array {
         $players = $this->game->gamestate->getActivePlayerList();
+        $this->game->dump('getArgs players', $players);
+        $this->game->dump('getArgs activePlayerId', $activePlayerId);
         $result = [];
         foreach ($players as $player_id) {
             $result['_private'][$player_id] = [
@@ -34,11 +36,21 @@ class PlaceTrap extends GameState
                 'boardTraps'  => $this->getBoardTraps((int)$player_id),
             ];
         }
+        $this->game->dump('getArgs result', $result);
         return $result;
+        /*$this->game->dump('getArgs getArgs getArgs', $activePlayerId);
+        return [
+            '_private' => [
+                $activePlayerId => [
+                    'supplyTraps' => $this->getSupplyTraps($activePlayerId),
+                    'boardTraps'  => $this->getBoardTraps($activePlayerId),
+                ]
+            ]
+        ];*/
     }
 
     #[PossibleAction]
-    public function actPlaceTrap(string $trapKey, string $cell, int $orientation, int $activePlayerId): void {
+    public function actPlaceTrap(string $trapKey, string $cell, int $orientation, int $playerId): void {
 
         // Extraire x et y depuis "cell_{player_id}_{x}_{y}"
         $parts = explode('_', $cell);
@@ -48,16 +60,16 @@ class PlaceTrap extends GameState
         // Vérifier que le piège appartient au joueur et est dans son supply
         $trap = $this->game->getObjectFromDb(
             "SELECT * FROM `trap` WHERE `token_key` = '{$trapKey}' 
-             AND `token_location` = 'supply_{$activePlayerId}'
-             AND `token_key LIKE '%_{$activePlayerId}_%'"
+             AND `token_location` = 'supply_{$playerId}'
+             AND `token_key` LIKE '%{$playerId}%'"
         );
         if (!$trap) {
             throw new UserException(clienttranslate('Trap not available'));
         }
 
         // Vérifier que la case est vide (pas de piège, pas de tour, pas de squelette)
-        $targetLocation = "cell_{$activePlayerId}_{$x}_{$y}";
-        $towerLocation  = "cell_{$activePlayerId}_3_3"; // la tour est au centre
+        $targetLocation = "cell_{$playerId}_{$x}_{$y}";
+        $towerLocation  = "cell_{$playerId}_3_3"; // la tour est au centre
 
         if ($targetLocation === $towerLocation) {
             throw new UserException(clienttranslate('Cannot place trap on tower'));
@@ -78,13 +90,13 @@ class PlaceTrap extends GameState
         );
 
         $this->game->bga->notify->all('trapPlaced', clienttranslate('${player_name} places a trap'), [
-            'player_id'   => $activePlayerId,
-            'player_name' => $this->game->getPlayerNameById($activePlayerId),
+            'trapKey'   => $trapKey,
+            'player_name' => $this->game->getPlayerNameById($playerId),
             'cell'        => $targetLocation,
             'orientation' => $orientation,
         ]);
 
-        $this->game->gamestate->setPlayerNonMultiactive($activePlayerId, 'allTrapsDone');
+        $this->game->gamestate->setPlayerNonMultiactive($playerId, 'allTrapsDone');
         //return 'allTrapsDone';
     }
 
