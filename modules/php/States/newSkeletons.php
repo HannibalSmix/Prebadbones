@@ -25,19 +25,49 @@ class NewSkeletons extends GameState
      *
      * The onEnteringState method of state `nextPlayer` is called everytime the current game state is set to `nextPlayer`.
      */
-    function onEnteringState(int $activePlayerId) {
+    public function onEnteringState(): void {
 
-        // Give some extra time to the active player when he completed an action
-        $this->game->giveExtraTime($activePlayerId);
+        // // Give some extra time to the active player when he completed an action
+        // //$this->game->giveExtraTime($activePlayerId);
         
-        $this->game->activeNextPlayer();
+        // //$this->game->activeNextPlayer();
 
-        // Go to another gamestate
-        $gameEnd = false; // Here, we would detect if the game is over to make the appropriate transition
-        if ($gameEnd) {
-            return EndScore::class;
-        } else {
-            return PlayerTurn::class;
+        // // Go to another gamestate
+        // /*$gameEnd = false; // Here, we would detect if the game is over to make the appropriate transition
+        // if ($gameEnd) {
+        //     return EndScore::class;
+        // } else {
+        //     return MoveHero::class;
+        // }*/
+        $this->drawThreeSkeleton();
+        $this->game->gamestate->nextState('newSkeletons');
+
+    }
+
+    function drawThreeSkeleton()//: array
+    {
+        $players = $this->game->loadPlayersBasicInfos();
+
+        foreach ($players as $player_id => $player) {
+            $sql = "SELECT token_key FROM skeleton WHERE token_location = 'bag' ORDER BY RAND() LIMIT 3";
+            $skeletons = $this->game->getObjectListFromDB($sql,true); 
+
+            foreach($skeletons as $value){
+                //$this->dump('token_keytoken_keytoken_keytoken_key', $token_key);
+                //$parts = explode('_', $value);
+                //$base = $parts[0] . '_' . $parts[1] . '_' . $parts[2]; // skeleton_blue_left
+                $new_loc='cimetery_'.$player_id;
+
+                $this->game->DbQuery(
+                    "UPDATE `skeleton` SET `token_location`='$new_loc' WHERE `token_key` = '$value'"
+                );
+
+                $this->game->bga->notify->all('skeletonDrawn', '', [
+                    'player_id' => $player_id,
+                    'token_key' => $value,
+                    'location'  => $new_loc,
+                ]);
+            }
         }
     }
 }

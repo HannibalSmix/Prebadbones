@@ -23,7 +23,7 @@ class MoveSkeletons extends GameState
             $skeletons = $this->game->getCollectionFromDb(
                 "SELECT * FROM `skeleton` 
                  WHERE `token_location` LIKE 'cell_{$player_id}_%'
-                 OR `token_location` LIKE 'entrance_%_{$player_id}'"
+                 OR `token_location` LIKE 'entrance_%_{$player_id}'" 
             );
 
             foreach ($skeletons as $skeleton) {
@@ -40,8 +40,10 @@ class MoveSkeletons extends GameState
         $location = $skeleton['token_location'];
 
         // Déterminer la direction depuis la clé : skeleton_blue_left_3 → left
-        $parts = explode('_', $key);
-        $direction = $parts[2]; // top, left, right
+        // $parts = explode('_', $key);
+        //$direction = $parts[2]; // top, left, right
+        //remplacé ceci:
+        $direction = $skeleton['token_direction']; // top, left, right
 
         // Calculer la nouvelle position
         [$newX, $newY] = $this->getNewPosition($location, $direction, $player_id);
@@ -75,12 +77,47 @@ class MoveSkeletons extends GameState
     private function getNewPosition(string $location, string $direction, int $player_id): array {
         // Si le squelette est encore dans sa zone d'entrée → entre sur le board
         if (str_starts_with($location, 'entrance_')) {
-            return match($direction) {
-                'top'   => [3, 1], // entre par le haut → ligne 1, colonne 3
-                'left'  => [1, 3], // entre par la gauche → colonne 1, ligne 3
-                'right' => [5, 3], // entre par la droite → colonne 5, ligne 3
-                default => [null, null],
-            };
+            $color = explode('_',$location);
+            $colorSk = $color[2];
+            if($direction=='down'){
+                $x=1;
+                switch($colorSk){
+                    case 'pink': $y=1;break;
+                    case 'yellow': $y=2;break;
+                    case 'red': $y=3;break;
+                    case 'blue': $y=4;break;
+                    case 'green': $y=5;break;
+                }
+                return [$x,$y];
+            }
+            if($direction=='right'){
+                $y=1;
+                switch($colorSk){
+                    case 'pink': $x=5;break;
+                    case 'yellow': $x=4;break;
+                    case 'red': $x=3;break;
+                    case 'blue': $x=2;break;
+                    case 'green': $x=1;break;
+                }
+                return [$x,$y];
+            }
+            if($direction=='left'){
+                $y=5;
+                switch($colorSk){
+                    case 'pink': $x=1;break;
+                    case 'yellow': $x=2;break;
+                    case 'red': $x=3;break;
+                    case 'blue': $x=4;break;
+                    case 'green': $x=5;break;
+                }
+                return [$x,$y];
+            }
+            // return match($direction) {
+            //     'top'   => [1, 3], // entre par le haut → ligne 1, colonne y
+            //     'left'  => [3, 1], // entre par la gauche → ligne x, colonne 1
+            //     'right' => [3, 5], // entre par la droite → ligne x, colonne 5
+            //     default => [null, null],
+            // };
         }
 
         // Squelette déjà sur le board : extraire x,y
@@ -115,7 +152,7 @@ class MoveSkeletons extends GameState
              WHERE `token_key` = '{$player_id}'"
         );
 
-        $this->game->playerStats->inc($player_id, 'houses_lost', 1);
+        $this->game->playerStats->inc('houses_lost', 1, $player_id);
 
         $this->game->bga->notify->all('houseLost', 
             clienttranslate('${player_name} loses a house!'), [
@@ -143,7 +180,7 @@ class MoveSkeletons extends GameState
              WHERE `token_key` = '{$player_id}'"
         );
 
-        $this->game->playerStats->inc($player_id, 'tower_floors_lost', 1);
+        $this->game->playerStats->inc('tower_floors_lost', 1, $player_id);
 
         $this->game->bga->notify->all('towerFloorLost', 
             clienttranslate('${player_name} loses a tower floor!'), [
@@ -155,7 +192,7 @@ class MoveSkeletons extends GameState
         $this->sendToBag($skeletonKey, $player_id);
     }
 
-    private function sendToBag(string $skeletonKey, int $player_id): void {
+    private function sendToBag(string $skeletonKey, int $player_id): void {// not sure the use of $player_id
         $this->game->DbQuery(
             "UPDATE `skeleton` SET `token_location` = 'bag' 
              WHERE `token_key` = '{$skeletonKey}'"

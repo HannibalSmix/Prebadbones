@@ -30,7 +30,7 @@ class Game extends \Bga\GameFramework\Table
 {
     public static array $CARD_TYPES;
 
-    public PlayerCounter $playerEnergy;
+    //public PlayerCounter $playerEnergy;
 
     /**
      * Your global variables labels:
@@ -48,7 +48,7 @@ class Game extends \Bga\GameFramework\Table
 
         $this->initGameStateLabels([]); // mandatory, even if the array is empty
 
-        $this->playerEnergy = $this->bga->counterFactory->createPlayerCounter('energy');
+        //$this->playerEnergy = $this->bga->counterFactory->createPlayerCounter('energy');
 
         /* example of notification decorator.
         // automatically complete notification args when needed
@@ -130,7 +130,7 @@ class Game extends \Bga\GameFramework\Table
         $result["players"] = $this->getCollectionFromDb(
             "SELECT `player_id` AS `id`, `player_score` AS `score`, `player_no` AS `no` FROM `player`"
         );
-        $this->playerEnergy->fillResult($result);
+        //$this->playerEnergy->fillResult($result);
 
         // TODO: Gather all information about current game situation (visible by player $currentPlayerId).
         // Squelettes (seulement ceux sur le board, pas dans le bag)
@@ -167,18 +167,26 @@ class Game extends \Bga\GameFramework\Table
      */
     protected function setupNewGame($players, $options = [])
     {
-        $this->playerEnergy->initDb(array_keys($players), initialValue: 2);
+        //$this->playerEnergy->initDb(array_keys($players), initialValue: 2);
 
         //Création des skelettes dans le bag
         $insert=[];
         foreach($this->token_skeleton as $key => $value){
             for($i=1;$i<=12;$i++){
                 $k=$key."_".$i;
+                $parts = explode('_', $key); // cell_playerid_x_y
+                $start = $parts[2];
+                $dir = match ($start) {
+                    'top' => 'down',
+                    'left' => 'right',
+                    'right' => 'left',
+                    default => 'error',
+                };
                 $insert[] = vsprintf("('%s', '%s', '%s', '%s')", [
                     $k,
                     'bag',
                     0,
-                    0
+                    $dir
                 ]);
             }
         }
@@ -295,21 +303,21 @@ class Game extends \Bga\GameFramework\Table
     }
 
     //Draw 3 skeletons in the bag
-    function drawThreeSkeleton($player_id)//: array
-    {
-        $sql = "SELECT token_key FROM skeleton WHERE token_location = 'bag' ORDER BY RAND() LIMIT 3";
-        $skeletons = self::getCollectionFromDb($sql);
-        $new_loc='cimetery_'.$player_id;
+    // function drawThreeSkeleton($player_id)//: array
+    // {
+    //     $sql = "SELECT token_key FROM skeleton WHERE token_location = 'bag' ORDER BY RAND() LIMIT 3";
+    //     $skeletons = self::getCollectionFromDb($sql);
+    //     $new_loc='cimetery_'.$player_id;
 
-        $token_keys = array_map(fn($s) => "'" . $s['token_key'] . "'", $skeletons);
-        $keys_str = implode(",", $token_keys);
+    //     $token_keys = array_map(fn($s) => "'" . $s['token_key'] . "'", $skeletons);
+    //     $keys_str = implode(",", $token_keys);
             
-        static::DbQuery(
-            "UPDATE `skeleton` SET `token_location`='$new_loc' WHERE `token_key` IN ($keys_str)"
-        );
+    //     static::DbQuery(
+    //         "UPDATE `skeleton` SET `token_location`='$new_loc' WHERE `token_key` IN ($keys_str)"
+    //     );
     
-        //return $result;
-    }
+    //     //return $result;
+    // }
     //Draw 3 skeletons except RED skeleton in the bag!!
     function drawThreeSkeletonNoRed($player_id)//: array
     {

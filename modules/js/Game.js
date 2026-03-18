@@ -492,6 +492,14 @@ export class Game {
         }
     }
     
+    async notif_skeletonDrawn(args) {
+        const skel = document.getElementById(`${args.token_key}`);
+        const cimetery = document.getElementById(args.location);
+        if (skel && cimetery) {
+            cimetery.appendChild(skel);
+        }
+    }
+    
     /*
     Example:
     async notif_cardPlayed( args ) {

@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `skeleton` (
  `token_key` varchar(32) NOT NULL,
  `token_location` varchar(50) NOT NULL,
  `token_state` int(10),
- `token_direction` int(10),
+ `token_direction` varchar(5),
  PRIMARY KEY (`token_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
