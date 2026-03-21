@@ -16,7 +16,7 @@ class NewSkeletons extends GameState
         parent::__construct($game,
             id: 5,
             type: StateType::GAME,
-            transitions: ['newSkeletons' => 6],
+            transitions: ['newSkeletons' => 2],
         );
     }
 

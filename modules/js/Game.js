@@ -46,7 +46,7 @@ class PlaceTrap {
                 const el = document.getElementById(trap.token_location); // la cellule
                 if (el) {
                     el.classList.add('retrievable');
-                    el.addEventListener('click', () => this.onBoardTrapClick(trap.token_location));
+                    el.addEventListener('click', () => this.onBoardTrapClick(trap, trap.token_location, args));
                 }
             });
         }
@@ -93,7 +93,7 @@ class PlaceTrap {
         // Mettre en évidence les cases vides du board
         //console.log("args._private.boardTraps", args._private.boardTraps)
         const occupiedCells = Object.values(args._private.boardTraps).map(t => t.token_location);
-        const playerId = trap.token_location.split('_').slice(-1)[0]; // extraire player_id depuis token_location
+        const playerId = trap.token_key.split('_')[1]; // extraire player_id depuis token_key
         console.log("occupiedCells", occupiedCells);
         console.log("playerId", playerId);
         
@@ -101,7 +101,7 @@ class PlaceTrap {
             for (let y = 1; y <= 5; y++) {
                 const cellId = `cell_${playerId}_${x}_${y}`;
                 if (cellId === `cell_${playerId}_3_3`) continue; // pas sur la tour
-                if (occupiedCells.includes(cellId)) continue; // case occupée
+                if (occupiedCells.includes(cellId)) continue; // case occupée    -------------> TODOOOOOOOOOOOOOOOOO
                 
                 const cell = document.getElementById(cellId);
                 if (cell) {
@@ -125,8 +125,15 @@ class PlaceTrap {
         this.clearValidCells();
     }
 
-    onBoardTrapClick(cell) {
-        this.bga.actions.performAction('actRetrieveTrap', { cell: cell });
+    onBoardTrapClick(trap, cellId, args) {
+        console.log("Clic on the trap on the boars", cellId);
+        const playerId = trap.token_key.split('_')[1]; // extraire player_id depuis token_key
+        this.bga.actions.performAction('actRetrieveTrap', { 
+            trapKey: trap.token_key, 
+            cell: cellId,
+            playerId : playerId
+        });
+
     }
 
     clearValidCells() {
@@ -487,6 +494,14 @@ export class Game {
     async notif_trapPlaced(args) {
         const trap = document.getElementById(`${args.trapKey}`);
         const targetCell = document.getElementById(args.cell);
+        if (trap && targetCell) {
+            targetCell.appendChild(trap);
+        }
+    }
+    
+    async notif_trapRetrieved(args) {
+        const trap = document.getElementById(`${args.trapKey}`);
+        const targetCell = document.getElementById(`grid-supply_${args.player_id}`);
         if (trap && targetCell) {
             targetCell.appendChild(trap);
         }

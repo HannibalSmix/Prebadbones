@@ -101,28 +101,28 @@ class PlaceTrap extends GameState
     }
 
     #[PossibleAction]
-    public function actRetrieveTrap(string $trapKey, string $cell, int $activePlayerId): void {
+    public function actRetrieveTrap(string $trapKey, string $cell, int $playerId): void {
         // Vérifier que le piège est sur le board du joueur
         $trap = $this->game->getObjectFromDb(
             "SELECT * FROM `trap` WHERE `token_location` = '{$cell}'
-            AND `token_location` LIKE 'cell_{$activePlayerId}_%'"
+            AND `token_location` LIKE 'cell_{$playerId}_%'"
         );
         if (!$trap) {
             throw new UserException(clienttranslate('Trap not on your board'));
         }
 
         $this->game->DbQuery(
-            "UPDATE `trap` SET `token_location` = 'supply_{$activePlayerId}', `token_state` = 0 
+            "UPDATE `trap` SET `token_location` = 'supply_{$playerId}', `token_state` = 0 
             WHERE `token_key` = '{$trap['token_key']}'"
         );
 
         $this->game->bga->notify->all('trapRetrieved', clienttranslate('${player_name} retrieves a trap'), [
-            'player_id'   => $activePlayerId,
-            'player_name' => $this->game->getPlayerNameById($activePlayerId),
-            'cell'        => $cell,
+            'player_id'   => $playerId,
+            'player_name' => $this->game->getPlayerNameById($playerId),
+            'trapKey'   => $trap['token_key'],
         ]);
 
-        $this->game->gamestate->setPlayerNonMultiactive($activePlayerId, 'allTrapsDone');
+        $this->game->gamestate->setPlayerNonMultiactive($playerId, 'allTrapsDone');
         //return 'allTrapsDone';
     }
 
