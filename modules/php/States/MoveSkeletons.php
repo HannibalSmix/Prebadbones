@@ -49,7 +49,7 @@ class MoveSkeletons extends GameState
         [$newX, $newY] = $this->getNewPosition($location, $direction, $player_id);
 
         // Cas 1 : squelette sort du board → attaque le village
-        if ($newX === null) {
+        if ($newX > 5) {
             $this->attackVillage($key, $player_id);
             return;
         }
@@ -60,7 +60,18 @@ class MoveSkeletons extends GameState
             return;
         }
 
-        // Cas 3 : déplacement normal
+        // Cas 3 : squelette arrive sur hero
+        // if ($newX === 3 && $newY === 3) {
+        //     $this->destroyTowerFloor($key, $player_id);
+        //     return;
+        // }
+
+        //Cas 4 : squelette arrive sur piège
+
+        //Cas 5 : Arrive sur les flèches //attention si et piège et flèche!!!
+
+
+        // Cas tout va bien : déplacement normal
         $newLocation = "cell_{$player_id}_{$newX}_{$newY}";
         $this->game->DbQuery(
             "UPDATE `skeleton` SET `token_location` = '{$newLocation}' 
@@ -125,10 +136,11 @@ class MoveSkeletons extends GameState
         $x = (int)$parts[2];
         $y = (int)$parts[3];
 
-        return match($direction) {
-            'top'   => $y + 1 > 5 ? [null, null] : [$x, $y + 1], // descend (y++)
-            'left'  => $x + 1 > 5 ? [null, null] : [$x + 1, $y], // va à droite (x++)
-            'right' => $x - 1 < 1 ? [null, null] : [$x - 1, $y], // va à gauche (x--)
+        return match($direction) { //----> ici à corriger 
+            'down'   => [$x + 1, $y], // descend (x++)
+            'top'   => [$x - 1, $y], // monte (x--)
+            'left'  => [$x, $y - 1], // va à gauche (x--)
+            'right' => [$x, $y + 1], // va à droite (x++)
             default => [null, null],
         };
     }
