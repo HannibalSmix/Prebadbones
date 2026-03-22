@@ -95,10 +95,17 @@ class MoveHero extends GameState
         $newLocation = "cell_{$currentPlayerId}_{$x}_{$y}";
 
         // Détruire les squelettes sur la case d'arrivée
+        $sql = "SELECT token_key FROM skeleton WHERE token_location = '{$newLocation}'";
+        $skeletons = $this->game->getObjectListFromDB($sql,true); 
         $this->game->DbQuery(
             "UPDATE `skeleton` SET `token_location` = 'bag' 
              WHERE `token_location` = '{$newLocation}'"
         );
+        foreach($skeletons as $key){
+            $this->game->bga->notify->all('skeletonDead', '', [
+                'token_key'   => $key
+            ]);
+        }
 
         // Déplacer le héros
         $this->game->DbQuery(

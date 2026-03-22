@@ -40,7 +40,35 @@ class NewSkeletons extends GameState
         //     return MoveHero::class;
         // }*/
         $this->drawThreeSkeleton();
+        $this->MoveSkeletonsFromCimetery();
         $this->game->gamestate->nextState('newSkeletons');
+
+    }
+
+    function MoveSkeletonsFromCimetery()
+    {
+        $sql = "SELECT token_key, token_location FROM skeleton WHERE token_location LIKE 'cimetery_%'";
+        $skeletons = $this->game->getCollectionFromDb($sql,true); 
+
+        //$this->dump('skeletonsskeletonsskeletonsskeletonsskeletons', $skeletons);
+        foreach($skeletons as $key => $location){
+            //$this->dump('token_keytoken_keytoken_keytoken_key', $token_key);
+            $parts = explode('_', $key);
+            $base = $parts[0] . '_' . $parts[1] . '_' . $parts[2]; // skeleton_blue_left
+            $parts = explode('_', $location);
+            $player_id = $parts[1];
+            $new_loc='entrance_'.$base.'_'.$player_id;
+
+            $this->game->DbQuery(
+                "UPDATE `skeleton` SET `token_location`='$new_loc' WHERE `token_key` = '$key'"
+            );
+
+            $this->game->bga->notify->all('skeletonPlacement', '', [
+                'player_id' => $player_id,
+                'token_key' => $key,
+                'location'  => $new_loc,
+            ]);
+        }
 
     }
 

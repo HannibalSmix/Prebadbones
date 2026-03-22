@@ -92,7 +92,9 @@ class PlaceTrap {
 
         // Mettre en évidence les cases vides du board
         //console.log("args._private.boardTraps", args._private.boardTraps)
-        const occupiedCells = Object.values(args._private.boardTraps).map(t => t.token_location);
+        const occupiedCellsTraps = Object.values(args._private.boardTraps).map(t => t.token_location);
+        const occupiedCellsSkeletons = Object.values(args._private.boardSkeletons).map(t => t.token_location);
+        const occupiedCells = occupiedCellsTraps.concat(occupiedCellsSkeletons);
         const playerId = trap.token_key.split('_')[1]; // extraire player_id depuis token_key
         console.log("occupiedCells", occupiedCells);
         console.log("playerId", playerId);
@@ -514,6 +516,26 @@ export class Game {
             cimetery.appendChild(skel);
         }
     }
+    
+    async notif_skeletonPlacement(args) {
+        const skel = document.getElementById(`${args.token_key}`);
+        const cell = document.getElementById(args.location);
+        if (skel && cell) {
+            cell.appendChild(skel);
+        }
+    }
+    
+    async notif_skeletonDead(args) {
+        const skel = document.getElementById(`${args.token_key}`);
+        const cell = document.getElementById("bag");
+        if (skel) {
+            cell.appendChild(skel);
+        }
+    }
+
+    
+
+    
     
     /*
     Example:

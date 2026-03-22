@@ -27,16 +27,17 @@ class PlaceTrap extends GameState
     //return trap from players (on the board and supply)
     public function getArgs(int $activePlayerId): array {
         $players = $this->game->gamestate->getActivePlayerList();
-        $this->game->dump('getArgs players', $players);
-        $this->game->dump('getArgs activePlayerId', $activePlayerId);
+        //$this->game->dump('getArgs players', $players);
+        //$this->game->dump('getArgs activePlayerId', $activePlayerId);
         $result = [];
         foreach ($players as $player_id) {
             $result['_private'][$player_id] = [
                 'supplyTraps' => $this->getSupplyTraps((int)$player_id),
                 'boardTraps'  => $this->getBoardTraps((int)$player_id),
+                'boardSkeletons' => $this->getBoardSkeletons((int)$player_id),
             ];
         }
-        $this->game->dump('getArgs result', $result);
+        //$this->game->dump('getArgs result', $result);
         return $result;
         /*$this->game->dump('getArgs getArgs getArgs', $activePlayerId);
         return [
@@ -148,6 +149,13 @@ class PlaceTrap extends GameState
             "SELECT * FROM `trap` WHERE `token_location` LIKE 'cell_{$player_id}_%'"
         );
     }
+
+    private function getBoardSkeletons(int $player_id): array {
+        return $this->game->getCollectionFromDb(
+            "SELECT * FROM `skeleton` WHERE `token_location` LIKE 'cell_{$player_id}_%'"
+        );
+    }
+
 
     public function zombie(int $playerId): void {
         $this->actDoNothing($playerId);
